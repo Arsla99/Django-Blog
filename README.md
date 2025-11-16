@@ -255,7 +255,64 @@ advanced_blog/
 
 ## 🚀 Deployment
 
-### Heroku Deployment
+### Railway Deployment (Recommended)
+
+**Railway** is the easiest way to deploy this Django application with automatic PostgreSQL provisioning and zero-config deployment.
+
+#### Quick Deploy Steps:
+
+1. **Prepare your repository**:
+   ```powershell
+   git add .
+   git commit -m "Add Railway deployment configuration"
+   git push origin main
+   ```
+
+2. **Deploy on Railway**:
+   - Go to [railway.app](https://railway.app) and sign in
+   - Click "New Project" → "Deploy from GitHub repo"
+   - Select your repository
+   - Railway will automatically detect Django and deploy!
+
+3. **Add PostgreSQL**:
+   - In your Railway project, click "New" → "Database" → "Add PostgreSQL"
+   - `DATABASE_URL` will be automatically configured
+
+4. **Set Environment Variables**:
+   Go to your web service → Variables tab and add:
+   ```
+   SECRET_KEY=your-secret-key-here
+   DEBUG=False
+   ALLOWED_HOSTS=your-app.up.railway.app
+   ```
+
+5. **Create Superuser**:
+   In Railway console, run:
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+6. **(Optional) Add Sample Data**:
+   ```bash
+   python manage.py populate_data
+   ```
+
+**📖 For detailed deployment instructions, see [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md)**
+
+#### Local Deployment Test:
+
+Test Railway configuration locally before deploying:
+
+```powershell
+.\deploy-test.ps1
+```
+
+This will:
+- Install production dependencies
+- Collect static files
+- Start Gunicorn server locally
+
+### Alternative: Heroku Deployment
 
 1. Install Heroku CLI and login:
 ```bash
@@ -272,23 +329,7 @@ heroku create your-app-name
 heroku addons:create heroku-postgresql:mini
 ```
 
-4. Update settings for production:
-   - Set `DEBUG = False`
-   - Configure `ALLOWED_HOSTS`
-   - Set up environment variables
-
-5. Create `Procfile`:
-```
-web: gunicorn advanced_blog.wsgi
-```
-
-6. Install gunicorn:
-```bash
-pip install gunicorn
-pip freeze > requirements.txt
-```
-
-7. Deploy:
+4. Deploy:
 ```bash
 git add .
 git commit -m "Prepare for deployment"
@@ -297,7 +338,7 @@ heroku run python manage.py migrate
 heroku run python manage.py createsuperuser
 ```
 
-### PythonAnywhere Deployment
+### Alternative: PythonAnywhere Deployment
 
 1. Create account on PythonAnywhere
 2. Upload project files
