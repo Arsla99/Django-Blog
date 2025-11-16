@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Post - Advanced Blog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Are you sure you want to delete the following post?</p>
+                    <div class="alert alert-warning">
+                        <h5>{{ object.title }}</h5>
+                        <p class="mb-0">This action cannot be undone.</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Yes, Delete
+                            </button>
+                            <a href="{% url 'blog:author_dashboard' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

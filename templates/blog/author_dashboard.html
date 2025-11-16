@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Author Dashboard - Advanced Blog{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>
+                <i class="bi bi-speedometer2"></i> Author Dashboard
+            </h2>
+            <p class="lead">Manage your posts and comments</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'blog:post_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create New Post
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Posts</h5>
+                    <h2>{{ posts|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Published</h5>
+                    <h2>{{ posts|selectattr:"status"|selectattr:"status", "equalto", "published"|list|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Comments</h5>
+                    <h2>{{ pending_comments|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Comments -->
+    {% if pending_comments %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">
+                <i class="bi bi-chat-dots"></i> Pending Comments
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Post</th>
+                            <th>User</th>
+                            <th>Comment</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comment in pending_comments %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'blog:post_detail' comment.post.slug %}">
+                                    {{ comment.post.title|truncatewords:5 }}
+                                </a>
+                            </td>
+                            <td>{{ comment.user.username }}</td>
+                            <td>{{ comment.content|truncatewords:10 }}</td>
+                            <td>{{ comment.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'blog:approve_comment' comment.pk %}" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check"></i> Approve
+                                </a>
+                                <a href="{% url 'blog:delete_comment' comment.pk %}" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Posts List -->
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-file-earmark-text"></i> My Posts
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if posts %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Views</th>
+                            <th>Comments</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for post in posts %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'blog:post_detail' post.slug %}">
+                                    {{ post.title }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if post.category %}
+                                <span class="badge bg-primary">{{ post.category.name }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if post.status == 'published' %}
+                                <span class="badge bg-success">Published</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Draft</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ post.views }}</td>
+                            <td>{{ post.get_comments_count }}</td>
+                            <td>{{ post.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'blog:post_update' post.slug %}" class="btn btn-warning" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'blog:post_delete' post.slug %}" class="btn btn-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> You haven't created any posts yet.
+                <a href="{% url 'blog:post_create' %}">Create your first post!</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
